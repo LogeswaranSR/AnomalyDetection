@@ -101,3 +101,8 @@ class AnomalyDetectionModel:
             predictors = self.multivariate_gaussian(predictors)
         anomaly = (predictors < self.epsilon)
         return anomaly
+    
+    def evaluate(self, X, anomalies):
+        pred = self.predict(X)
+        score = self.f1_score(anomalies, pred)
+        return score
