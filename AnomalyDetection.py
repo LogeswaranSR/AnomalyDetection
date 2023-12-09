@@ -57,9 +57,9 @@ class AnomalyDetectionModel:
             Probabilities of the given Data in the distribution.
 
         '''
-        if(mu==None):
+        if(mu is None):
             mu=self.mu
-        if(var==None):
+        if(var is None):
             var=self.var
         coeff = np.sqrt(2*np.pi*var)
         power = ((X-mu)**2)/(2*var)
@@ -71,7 +71,7 @@ class AnomalyDetectionModel:
         best_F1 = 0
         F1 = 0
         step_size = max(probabilities) - min(probabilities)
-        step_size = step_size//1000
+        step_size = step_size/1000
         for eps in np.arange(min(probabilities), max(probabilities), step_size):
             pred = (probabilities <= eps).astype(np.int32)
             F1 = self.f1_score(anomalies, pred)
