@@ -64,7 +64,7 @@ class AnomalyDetectionModel:
         coeff = np.sqrt(2*np.pi*var)
         power = ((X-mu)**2)/(2*var)
         prob = np.exp(-power)/coeff
-        return np.prod(prob, axis=1, keepdims=True)
+        return np.prod(prob, axis=1)
     
     def select_threshold_value(self, anomalies, probabilities):
         best_epsilon = 0
@@ -81,9 +81,9 @@ class AnomalyDetectionModel:
         self.epsilon = best_epsilon
         return best_epsilon, best_F1
     
-    def fit(self, X, anomalies):
-        mu, var = self.estimate_gaussian(X)
-        prob = self.multivariate_gaussian(X, mu, var)
+    def fit(self, X_val, anomalies, fit_data=None):
+        mu, var = self.estimate_gaussian(fit_data if fit_data is not None else X_val)
+        prob = self.multivariate_gaussian(X_val, mu, var)
         eps, F1 = self.select_threshold_value(anomalies, prob)
         return F1
     
@@ -106,3 +106,25 @@ class AnomalyDetectionModel:
         pred = self.predict(X)
         score = self.f1_score(anomalies, pred)
         return score
+    
+    def find_anomalies(self, X):
+        '''
+        Finds Anomalies for the given items
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Feature Vectors of itens to be predicted
+
+        Returns
+        -------
+        anomalies_count : int
+            Count of anomalies found
+        anomalies : np.ndarray
+            Array of indices of the anomalies in the given data
+
+        '''
+        prob = self.predict(X)
+        anomalies_count = np.sum((prob).astype(int))
+        anomalies = np.array([ind for ind in range(len(prob)) if prob[ind]])
+        return anomalies_count, anomalies
